@@ -4,4 +4,4 @@ createTime: 2025/05/25 16:58:17
 permalink: /java/
 ---
 
-- [并发编程](./juc.md)
+- [JUC 并发编程](./juc/)

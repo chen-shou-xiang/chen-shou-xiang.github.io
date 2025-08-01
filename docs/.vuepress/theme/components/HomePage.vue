@@ -106,8 +106,16 @@
           <div class="notes-column">
             <h3><span class="title-icon">📚</span>学习笔记</h3>
             <div class="item-card">
-              <project-item title="后端笔记" desc="主要技术方向" />
-              <project-item title="后端笔记" desc="主要技术方向" link="" />
+              <project-item
+                title="后端笔记"
+                desc="主要技术方向"
+                link="/java/"
+              />
+              <project-item
+                title="前端笔记"
+                desc="主要技术方向"
+                link="/front/"
+              />
               <project-item
                 title="工具合集"
                 desc="站在巨人肩膀上的牛马"

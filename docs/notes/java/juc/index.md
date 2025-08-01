@@ -51,7 +51,7 @@ permalink: /java/u92wmycg/
 
 ### 方式一：继承 Thread 类
 
-```java
+```java:collapsed-lines=2
 //1. 创建线程类继承 Thread，重写 run 方法
 public class MyThread extends Thread{
   @Override
@@ -76,7 +76,7 @@ public class MyThread extends Thread{
 
 ### 方式二：实现 Runnable 接口
 
-```java
+```java:collapsed-lines=2
 //1. 创建类实现Runnable接口，重写run方法
 public class MyRunnable implements Runnable{
    @Override
@@ -88,7 +88,7 @@ public class MyRunnable implements Runnable{
 }
 ```
 
-```java
+```java:collapsed-lines=2
 public class Main {
     public static void main(String[] args) {
         //2. 创建Runnable实现类对象，用于创建线程对象
@@ -110,7 +110,7 @@ public class Main {
 
 - 原理是保护性暂停设计模式。get 方法会阻塞等待线程执行完毕从而拿到执行结果
 
-```java
+```java:collapsed-lines=2
 //1. 创建类实现Callable接口，泛型为返回值类型
 public class MyCallable implements Callable<Integer> {
     @Override
@@ -125,7 +125,7 @@ public class MyCallable implements Callable<Integer> {
 }
 ```
 
-```java
+```java:collapsed-lines=2
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -183,7 +183,9 @@ public class Main {
 
 ## 3. Thread 类 API
 
-### (1). getName setName
+**_(1). 设置线程名/获取线程名_**
+
+:::details getName setName
 
 - `String getName()`：返回此线程的名称
 - `void setName(String name)`：设置线程的名字（构造方法也可以设置名字）
@@ -191,13 +193,20 @@ public class Main {
   1. 如果我们没有给线程设置名字，线程也是有默认的名字的，格式：Thread-X（X 序号，从 0 开始的）
   2. 如果我们要给线程设置名字，可以用 set 方法进行设置，也可以构造方法设置
 
-### (2). currentThread
+:::
+
+**_(2). 获取当前线程对象_**
+
+:::details currentThread
 
 - `static Thread currentThread()`：获取当前线程的对象
 - **细节**：
   当 JVM 虚拟机启动之后，会自动的启动多条线程，其中有一条线程就叫做 main 线程，他的作用就是去调用 main 方法，并执行里面的代码，在以前，我们写的所有的代码，其实都是运行在 main 线程当中
 
-### (3). sleep& TimeUnit
+:::
+**_(3). 线程休眠_**
+
+:::details sleep & TimeUnit
 
 - `static void sleep(long time)`：让线程休眠指定的时间，单位为毫秒
 - **细节**：
@@ -210,7 +219,10 @@ public class Main {
   3. 被 interrupt()方法打断后抛出 InterruptedException 异常（一般捕获）
   4. 可以使用 TimeUnit.SECOND.sleep(1) 替代 Thread.sleep(1000)，可以指定单位，可读性更好
 
-### (4). setPriority getPriority
+:::
+**_(4). 线程优先级_**
+
+:::details setPriority & getPriority
 
 - `setPriority(int newPriority)`：设置线程的优先级
 - `final int getPriority()`：获取线程的优先级
@@ -218,7 +230,10 @@ public class Main {
   - 线程优先级会提示（hint）调度器优先调度该线程，但它仅仅是一个提示，调度器可以忽略它
   - 如果 cpu 比较忙，那么优先级高的线程会获得更多的时间片，但 cpu 闲时，优先级几乎没作用
 
-### (5). setDaemon
+:::
+**_(5). 守护线程_**
+
+:::details setDaemon
 
 - `final void setDaemon(boolean on)`：设置为守护线程
 - **细节**：当其他的非守护线程执行完毕之后，守护线程会陆续结束
@@ -230,12 +245,18 @@ public class Main {
      - 垃圾回收器线程就是一种守护线程，当所有 java 线程执行完毕后，就没有 GC 的必要了
      - Tomcat 中的 Acceptor 和 Poller 线程都是守护线程，所以 Tomcat 接收到 shutdown 命令后，不会等待它们处理完当前请求
 
-### (6). yield
+:::
+**_(6). 出让/礼让线程_**
+
+:::details yield
 
 - `public static void yield()`：出让线程/礼让线程
 - **说明**：会让当前线程从运行状态变为就绪状态，具体的实现依赖于操作系统的任务调度器
 
-### (7). join
+:::
+**_(7). 插队线程_**
+
+:::details join
 
 - `public final void join()`：插入线程/插队线程
 - **要点**：
@@ -243,15 +264,25 @@ public class Main {
   2. 在线程 2 中调用线程 1 的 join 方法，线程 2 会等待线程 1 执行完后才执行
   3. **应用**：实现线程的同步
 
-### (8). start
+:::
+**_(8). 启动线程_**
+
+:::details start
 
 - **实例方法**：启动线程
 
-### (9). getStatus
+:::
+**_(9). 获取线程状态_**
 
-- **获取线程状态**：Java 中线程状态是用 6 个 enum 表示，分别为：NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, TERMINATED
+:::details getStatus
 
-### (10). interrupt()
+- **获取线程状态**：Java 中线程状态是用 6 个 enum 表示，分别为：NEW, RUNNABLE, BLOCKED, WAITING, TIMED\*WAITING, TERMINATED
+
+:::
+
+**_(10). 线程打断相关 API_**
+
+:::details interrupt
 
 - **打断阻塞线程**
   - 抛出 InterruptedException
@@ -259,30 +290,32 @@ public class Main {
 - **打断正常线程和 park 线程**
   - 此时调用 `isInterrupted() = true`，被打断的线程可根据此条件决定线程的下一步操作
 
-### (11). interrupted & isInterrupted
+:::
+
+:::details interrupted & isInterrupted
 
 - 调用`Thread.interrupted()`后返回打断标记，并清除打断状态（此时调用`isInterrupted = false`）
 - 调用当前线程对象的`isInterrupted()`后返回打断标记，不会清除打断状态
 
-### (12). park&unpark
+:::
+
+:::details park & unpark
 
 - **使用**
 
   - 暂停当前线程：`LockSupport.park();`
   - 恢复某个线程的运行：`LockSupport.unpark(暂停线程对象)`
 
-:::note 与 interrupted 的联系
+- **与 interrupted 的联系**
 
-- 调用`interrupt`方法打断被`LockSupport.park()`的线程不会清空打断状态（`isInterrupted = true`）
-- 当打断状态为`true`时再执行`park`方法将失效，若想生效则可以调用`Thread.interrupted()`将打断标记设为`false`
+  - 调用`interrupt`方法打断被`LockSupport.park()`的线程不会清空打断状态（`isInterrupted = true`）
+  - 当打断状态为`true`时再执行`park`方法将失效，若想生效则可以调用`Thread.interrupted()`将打断标记设为`false`
 
-:::
+- **与 wait、notify 的联系**
 
-:::note 与 wait、notify 的联系
-
-- `wait`，`notify`和`notifyAll`必须配合`Object Monitor`一起使用，而`park`，`unpark`不必
-- `park & unpark`是以线程为单位来【阻塞】和【唤醒】线程，而`notify`只能随机唤醒一个等待线程，`notifyAll`是唤醒所有等待线程，就不那么【精确】
-- `park & unpark`可以先`unpark`，而`wait & notify`不能先`notify`
+  - `wait`，`notify`和`notifyAll`必须配合`Object Monitor`一起使用，而`park`，`unpark`不必
+  - `park & unpark`是以线程为单位来【阻塞】和【唤醒】线程，而`notify`只能随机唤醒一个等待线程，`notifyAll`是唤醒所有等待线程，就不那么【精确】
+  - `park & unpark`可以先`unpark`，而`wait & notify`不能先`notify`
 
 :::
 
@@ -387,7 +420,7 @@ public class Main {
 
 :::
 
-分类对比总结
+对比：
 <c-table 
   :columns="[
     { title: '分类', key: 'category' },
@@ -433,119 +466,187 @@ if( table.get("key") == null ) {
 
 :::
 
-todo。。。
+### 3. 线程不安全场景
 
-- 5.  什么场景可能会出现线程不安全
+::: details 多个线程读写`非线程安全的`共享变量 (包括静态成员变量、实例成员变量等)
 
-- 1.  多个线程读写非线程安全的静态成员变量
+_经典卖票问题：_
+![alt text](QQ_1751801369549.png)
 
-      - ticket 为静态变量
+:::warning `private`或`final`关键字保证局部变量线程安全
+一般情况下方法的 局部变量 是线程安全的（前提是这个方法内部不会创建线程操作局部变量），
+但是有一种情况处除外：就是子类重写了这个方法，子类内部会创建线程操作这个局部变量，这样这个局部变量也可能变为共享变量，从而导致线程不安全，因此想让你编写的方法是线程安全的，请使用private或final关键字禁止重写。
+*[局部变量]: 包括方法参数和方法内创建的变量
 
-  - 2.  多个线程读写同一对象的非线程安全的成员变量
+:::
 
-  -
 
-  - 3.  方法中存在其他线程读写局部变量的情况
+## 6. synchronized
 
-  - 以下为一个例子：此时子类可以重写父类的非 private、final 方法并创建线程操作局部变量，使得重写方法可以修改传来的形参、成员变量，因此对于安全性有要求且不想往外暴露的类一般为其添加 final 修饰符。
+### 6.1. 简介
+**`synchronized`** 是java中内置的以悲观锁的方式处理线程安全问题的关键字，其具备以下特性：
 
-  - 注意：这里为什么说 ”可能？
+  - `可重入性`：同一个线程可以重复获取已经持有的锁
 
-  - 1. 如果修改的共享变量时可以保证原子性，则不会出现线程安全问题
+  - `互斥性`：同一时间只有一个线程能持有该锁
 
-       - 如：多个线程同时调用线程安全类的某个方法
-         只有共享变量 = xxx 这一个操作
+  - `保证了可见性`：锁的释放会将对变量的修改刷新到主内存
 
-    - 2. 如果修改变量时存在读写操作，则会出现线程安全问题
+### 6.2 使用
+  1. 同步代码块
+  ```java
+    synchronized(锁对象){
+        // 操作共享数据的代码
+    }
+  ```
+  :::tip 特点
 
-    - 如：共享变量 = xxx //先赋值
-      共享变量.xxx // 再调用方法，此时无法保证代码原子性
+  - 当synchronized代码块中发生异常时会释放锁；
+  - 锁可为任意对象，但必须是多个线程可共享的，否则将失去意义（每个线程持有自己的锁，无法实现同步）；
+  - 建议使用private final修饰锁对象，避免锁对象被修改，如 private static final Object lock = new Object()。
+  
+  :::
 
-- 6. 什么场景不会出现线程安全
+  2. 同步方法
+  ```java
+  public class Test {
+    // 同步实例方法
+    public synchronized void method() {
+        // ...
+    }
+    // 同步静态方法
+    public static synchronized void method() {
+        // ...
+    }
 
-- 1.  读写方法中的局部变量，因为局部变量是线程私有的，一般只有一个线程读写，不存在线程安全问题
+  }
+  ```
+  等价于：
+  ```java
+  public class Test {
+    // 同步实例方法
+    public void method() {
+      synchronized(this) {
+        // ...
+      }
+    }
+    // 同步静态方法
+    public static void method() {
+      synchronized(Test.class) {
+        // ...
+      }
+    }
 
-      - 调用方法时，每个线程都会为局部变量创建各自不同的实例
+  }
+  ```
 
-- 7. 注意
+  :::tip 特点
+  - 实例方法锁对象为this、静态方法则为当前类.class
+  :::
+  
+### 6.3 锁升级机制
 
-- 1.  判断共享变量是否绝对线程安全是看多个线程读写共享变量时是否能保证其代码的原子性
+1. 对象头  
+每个 Java 对象在内存中都有一个对象头（Object Header），它存储了对象的元数据信息，如锁状态、GC 分代年龄、哈希码等, 其组成为：
 
-  - 2.  任何出现线程安全的问题的类中必然提供了修改共享变量，且修改操作非原子性的方法，否则将不会出现线程安全问题
+    - `Mark Word (32位JVM大小为4字节，64位JVM大小为8字节)`
+    - `Klass Word （大小为4字节）`
+    - `array length (数组特有，大小为4字节)`
 
-### 2. synchronized
+    :::details 对象头组成图示
+      ![alt text](ObjectHeader.png)
 
-- 1.  同步代码块
+      Mark Word 结构（64 位 JVM）：
+      <c-table 
+        :columns="[
+          { title: '锁状态', key: 'lockStatus', width: '100px' },
+          { title: '存储内容（64 bit）', key: 'storageContent' }
+        ]" 
+        :data="[
+          { 
+            lockStatus: '无锁', 
+            storageContent: 'unused:25 | identity_hashcode:31 | unused:1 | age:4 | biased_lock:1 | lock:2（01）' 
+          },
+          { 
+            lockStatus: '偏向锁', 
+            storageContent: 'thread:54 | epoch:2 | unused:1 | age:4 | biased_lock:1 | lock:2（01）' 
+          },
+          { 
+            lockStatus: '轻量级锁', 
+            storageContent: '指向栈中 Lock Record 的指针:62 | lock:2（00）' 
+          },
+          { 
+            lockStatus: '重量级锁', 
+            storageContent: '指向 Monitor（管程）的指针:62 | lock:2（10）' 
+          },
+          { 
+            lockStatus: 'GC 标记', 
+            storageContent: '空（用于垃圾回收）' 
+          }
+        ]" 
+      />
 
-- 特点
+    :::
 
-  -
 
-  - 使用
+2. monitor(重量级锁)
 
-  - 格式
+  ![alt text](monitor.png)
 
-    -
+3. 轻量级锁
 
-    - 示例
+:::details （1）设计目的
+  如果一个对象虽然有多线程获取同一把锁，但获取的时间是错开的（也就是没有竞争），那么可以使用轻量级锁来优化
+:::
 
-    -
+:::details （2）上锁流程
+  轻量级锁的核心机制是 CAS（Compare-And-Swap）自旋，适用于 低竞争场景。其加锁流程如下：
 
-  - 注意
+  （1）加锁成功（`无竞争`）
+  - 线程在栈帧中创建 Lock Record（锁记录）。
 
-  - 锁可以为任意对象，但必须是唯一的（static），否则锁将无意义，一般用当前类的字节码对象
+  - 使用 CAS 将对象头的 Mark Word 替换为指向 Lock Record 的指针。
 
-    - 当 synchronized 代码块中发生异常时会释放锁
+  - 如果成功，线程获得轻量级锁。
 
-- 2. 同步方法
+  （2）加锁失败（`竞争发生`）
+  - 情况①：当前线程再次尝试获取锁（锁重入）
+    - JVM 检测到是同一个线程，直接允许重入（在栈帧中添加一个新的 Lock Record，但 Mark Word 不变）。
+    - 不会升级锁，因为这是线程内部的递归调用。
 
-- 特点
+  - 情况②：其他线程竞争锁
+    - CAS 失败（因为 Mark Word 已被其他线程修改）。
+    - JVM 会 膨胀（Inflate）为重量级锁，并让当前线程进入阻塞状态（通过操作系统的互斥量 Mutex 实现）。
 
-  - 不加 synchronzied 的方法就好比不遵守规则的人，不去老实排队
+  图示：
+  ![alt text](lightweight-lock-flow.png)
 
-  - 加载实例方法上
+:::
 
-    - 加载静态方法上
+:::details （3）解锁流程
 
-  - 使用
+  - 情况①：当退出synchronized 块时如果有取值为null的锁记录（`lock record == null`），表示有重入，这时重置锁记录，表示重入计数减一；
+  - 情况②：当退出synchronized 块时没有取值为null的锁记录（`lock record != null`），此时使用cas将Mark Word 的值恢复给对象头：
+      - 恢复成功：==解锁成功=={.tip}；
+      - 恢复失败：说明轻量级锁正进行锁膨胀或已升级为重量级锁，进入重量级锁解锁流程
+:::
 
-  - 格式
+:::details （4）锁膨胀
+  如果一个对象虽然有多线程获取同一把锁，但获取的时间是错开的（也就是没有竞争），那么可以使用轻量级锁来优化
+:::
 
-    -
+:::details （5）锁重入
+  如果一个对象虽然有多线程获取同一把锁，但获取的时间是错开的（也就是没有竞争），那么可以使用轻量级锁来优化
+:::
 
-    - 示例
+:::details （6）自旋优化
+  如果一个对象虽然有多线程获取同一把锁，但获取的时间是错开的（也就是没有竞争），那么可以使用轻量级锁来优化
+:::
 
-    - StringBuffer 与 StringBuilder 的所有方法唯一的区别是 StringBuffer 上的所有方法是同步方法，因此多线程场景下使用 StringBuffer
+  
+  - 1.  
 
-    - 细节
-
-    - 不知道什么时候写同步方法时，可先写同步代码块，再将同步代码块抽取成同步方法
-
-  - 注意
-
-  - 同步非静态方法的锁对象为 this，因此若创建多个线程对象时锁失效（继承 Thread 类方式创建线程），必须改为创建一个线程对象多线程执行（实现 Runnable 接口方式）
-
-- 12. 锁升级机制
-
-- 对象头
-
-  - 对象头组成
-
-    - - MarkWord
-
-      -
-
-  - monitor
-    重量级锁
-
-  -
-
-  - 轻量级锁&
-    CAS 自旋
-
-  - 1.  设计目的
-
-        - 如果一个对象虽然有多线程获取同一把锁，但获取的时间是错开的（也就是没有竞争），那么可以使用轻量级锁来优化
+        - 
 
     - 2. 加锁流程
 

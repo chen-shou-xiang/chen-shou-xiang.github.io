@@ -17,8 +17,14 @@ const java = defineNoteConfig({
   sidebar: ["", "juc/"],
 });
 
+const front = defineNoteConfig({
+  dir: "front",
+  link: "/front",
+  sidebar: [""],
+});
+
 export const notes = defineNotesConfig({
   dir: "notes",
   link: "/",
-  notes: [demoNote, tools, java],
+  notes: [demoNote, tools, java, front],
 });
