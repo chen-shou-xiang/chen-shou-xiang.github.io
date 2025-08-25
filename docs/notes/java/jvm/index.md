@@ -389,3 +389,7 @@ protected Class<?> loadClass(String name, boolean resolve)
 :::
 
 ### 3.4 打破双亲委派机制的方式
+
+#### 3.4.1 创建自定义类加载器，重写双亲委派机制算法
+#### 3.4.2 使用Thread.currentThread().getContextClassLoader() + SPI机制
+#### 3.4.3 OSGI框架
