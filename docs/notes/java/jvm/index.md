@@ -10,18 +10,18 @@ permalink: /java/1xjrwco5/
 
 ### 1.1 java 代码运行流程
 
-![alt text](./image/javaCodeRunFlow.png)
+![alt text](javaCodeRunFlow.png)
 
 ### 1.2 JVM 组成
 
-![alt text](./image/jvmCombine.png)
+![alt text](jvmCombine.png)
 
 ### 1.3 JVM 功能
 
 - 解释和运行：实时解释字节码指令为机器码，让计算机执行；
 - 内存管理：为对象、方法分配内存、垃圾回收等；
 - 即时编译：对热点代码进行优化，提升执行效率。
-  ![alt text](./image/jitFeature.png)
+  ![alt text](jitFeature.png)
 
 ## 2. 字节码技术
 
@@ -78,13 +78,13 @@ permalink: /java/1xjrwco5/
 
 :::details i++原理
 
-![alt text](./image/ifontIncrease.png)
+![alt text](ifontIncrease.png)
 
 :::
 
 :::details ++i 原理
 
-![alt text](./image/iBackIncrease.png)
+![alt text](iBackIncrease.png)
 
 :::
 
@@ -130,7 +130,7 @@ public class Demo3_8_1 {
 ```
 
 字节码指令：
-![alt text](./image/cinit.png)
+![alt text](cinit.png)
 
 :::
 
@@ -164,7 +164,7 @@ public class Demo3_8_2 {
 ```
 
 字节码指令：
-![alt text](./image/init.png)
+![alt text](init.png)
 
 :::
 
@@ -175,7 +175,7 @@ public class Demo3_8_2 {
 ### 3.1 类的生命周期
 
 类的生命周期描述了一个类加载、使用、卸载的整个过程：
-![alt text ](./image/classLifeCycle.png)
+![alt text ](classLifeCycle.png)
 
 #### (1) 加载
 
@@ -186,7 +186,7 @@ public class Demo3_8_2 {
 
 :::details 图示
 
-![alt text](./image/classLifecycle-load.png)
+![alt text](classLifecycle-load.png)
 
 :::
 
@@ -257,7 +257,7 @@ public class Demo3_8_2 {
 
 - 加载 `JAVA_HOME/jre/lib/ext` 目录下的类库文件;
 - 继承链：
-![alt text](./image/extAndAppClassLoaderExtend.png)
+![alt text](extAndAppClassLoaderExtend.png)
 
 
 在 JDK9 及之后：
@@ -341,7 +341,7 @@ public class MyApp {
 
 ### 3.3 双亲委派机制
 **定义**：自底向上查找是否加载过，再由顶向下进行加载。
-![alt text](./image/ParentDelegationModel.png)
+![alt text](ParentDelegationModel.png)
 
 **作用**：
 - `避免重复加载`：在双亲委派算法中，一个类只会加载一次，保证了类的全局唯一性。
