@@ -14,7 +14,7 @@ const tools = defineNoteConfig({
 const java = defineNoteConfig({
   dir: "java",
   link: "/java",
-  sidebar: ["", "juc/"],
+  sidebar: ["", "juc/", "jvm/"],
 });
 
 const front = defineNoteConfig({
