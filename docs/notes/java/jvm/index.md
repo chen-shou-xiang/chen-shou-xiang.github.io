@@ -388,8 +388,220 @@ protected Class<?> loadClass(String name, boolean resolve)
 
 :::
 
-### 3.4 打破双亲委派机制的方式
+### 3.4 打破双亲委派机制
 
-#### 3.4.1 创建自定义类加载器，重写双亲委派机制算法
-#### 3.4.2 使用Thread.currentThread().getContextClassLoader() + SPI机制
-#### 3.4.3 OSGI框架
+(1) **自定义类加载器**
+
+ 继承 `ClassLoader` 抽象类，重写`loadClass`方法。
+
+:::details 示例：Tomcat 服务器支持部署多个 war 包（Servlet 应用）
+
+Tomcat 支持部署多个 war 包，例如配置`上下文路径`模式:
+
+工作原理：
+
+1.你将你的 Web 应用打包成 WAR 文件，例如 wiki.war 和 blog.war。
+
+2.你把这两个文件放到 Tomcat 的 webapps 目录下。
+
+3.Tomcat 会自动解压并部署它们。默认情况下，WAR 文件的名字就是应用的上下文路径。
+
+访问示例：
+
+•要访问 wiki 应用，你的 URL 是：http://yourdomain.com:8080/wiki
+
+•要访问 blog 应用，你的 URL 是：http://yourdomain.com:8080/blog
+
+以上实现基于 Tomcat 的自定义类加载器，他可以为每一个 war 包创建一个单独的类加载器实例去加载各自 war 包中的类，以实现一个 JVM 部署多个 Servlet 应用。
+
+具体配置方式以及类加载器原理，请查阅 Tomcat 文档或问 AI。
+
+:::
+
+(2) **SPI机制 + 线程上下文类加载器**
+
+==SPI 机制=={.important} ：通过 `约定` + `反射机制` 获取第三方提供的接口实现类的机制；
+
+==线程上下文类加载器=={.important}：默认为`ApplicationClassLoader`, 可以通过`setContextClassLoader`方法设置。
+
+:::important 为什么SPI机制 + TCCL 可以打破双亲委派机制？
+
+按照双亲委派机制，`启动类加载器`和`扩展类加载器`只能加载自身负责的类，但在这部分类中，可以通过获取 TCCL 去加载不属于其职责范围内的类，如classpath中的类，而这部分类可以由SPI机制**动态**获取到。正是因为此TCCL机制和SPI机制的设计，从而打破了双亲委派机制。
+
+如 java.lang.DriverManager，其内部通过 TCCL 加载了 classpath 中的第三方 jar 包提供的 Driver 实现，也就是启动类加载器委派应用类加载器去加载类，具体可以看以下 JDBC 示例。
+
+:::
+
+
+:::details SPI 机制原理
+
+- **核心思想**：解耦与可扩展性。程序核心逻辑只面向接口编程，具体实现由第三方提供，并可动态替换。
+- **实现原理**：
+  1. **基于约定**：服务提供方必须在 JAR 包的 `META-INF/services/` 目录下（或 classpath 根目录下），创建以**接口全限定名**命名的配置文件，并在文件内填写**实现类的全限定名**。
+  2. **基于反射**：程序通过 `java.util.ServiceLoader` 类扫描 Classpath，找到所有符合约定的配置文件，并利用**反射机制**动态加载并实例化这些实现类。
+- 标准的 SPI 架构：
+  - `服务接口定义方 (API/SPI Jar)`：一个独立的、轻量级的 JAR 包，例如 payment-api.jar。它只包含服务接口，比如我们的 PayService 接口。它不包含任何具体的实现。它的唯一目的就是定义一个“契约”。
+  - `服务实现提供方 (Provider Jar)`：第三方开发者（或您自己团队的另一个模块）创建的 JAR 包，例如 alipay-provider.jar 或 wechatpay-provider.jar。这个提供方的项目，必须依赖于第一步中的 payment-api.jar。这样，它才能导入此接口并提供自身实现（如 Alipay）。
+  - `服务使用方 (Consumer Application)`：需要使用支付功能的应用程序，它也必须依赖于 payment-api.jar，这样它才能通过接口 PayService 来编码，并调用 ServiceLoader.load(PayService.class)。这个应用程序在编译时完全不知道 Alipay 或 WechatPay 类的存在，它只知道 PayService 接口，在运行时，只需要将它想使用的提供方 JAR（如 alipay-provider.jar）放到它的类路径下。
+
+支付示例：
+
+maven 项目依赖结构：
+
+```text
+                    +-----------------------------+
+                    |          spi-consumer       |
+                    |           (服务消费者)        |
+                    +-----------------------------+
+                      /             |            \
+                     /              |             \
+                    /               |              \
+                   /                |               \
+                  v                 v                v
++----------------+         +----------------+         +------------------+
+|   spi-alipay   |         |    spi-api     |         |  spi-wechatPay   |
+| （ 服务提供者 )  |-------> |    (服务接口)    | <------|   （服务提供者）    |
+|                |         |                |         |                  |
++----------------+         +----------------+         +------------------+
+```
+
+- spi 服务接口定义方（spi-api）：
+
+  ```java
+  package com.api;
+  
+  public interface PayService {
+      void pay();
+  }
+  ```
+
+- spi 服务实现提供方（以 spi-Alipay 为例）：
+
+  （1）实现接口
+
+  ```java
+  package com.alibaba;
+  
+  import com.api.PayService;
+  
+  public class Alipay implements PayService {
+      @Override
+      public void pay() {
+          System.out.println("this is alipay");
+      }
+  }
+  ```
+
+  （2）在`resource`目录中创建`META-INF/servicers/com.api.PayService`，内容为实现类全限定名：
+
+  ```text
+  com.alibaba.Alipay
+  ```
+
+- 服务使用方（spi-consumer）：
+
+  ```java
+  package com.summer;
+  
+  import com.api.PayService;
+  
+  import java.util.ServiceLoader;
+  
+  public class App {
+      public static void main(String[] args) {
+          ServiceLoader<PayService> payServices = ServiceLoader.load(PayService.class);
+          for (PayService payService : payServices) {
+              payService.pay();
+          }
+      }
+  }
+  ```
+
+  测试引入 alipay 和 wechatPay 包的效果，如果两个都引入，则打印：
+
+  ```text
+  this is alipay
+  wechatPay is running
+  ```
+
+  如果通过 java -jar 运行，则需要配置打包 Fat JAR [+farjar] 的插件：
+
+  ```xml
+  <build>
+      <plugins>
+          <!-- 这里以shade插件为例，此插件会将依赖包一起打包-->
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-shade-plugin</artifactId>
+              <version>3.5.1</version>
+              <executions>
+                  <execution>
+                      <phase>package</phase>
+                      <goals>
+                          <goal>shade</goal>
+                      </goals>
+                      <configuration>
+                          <transformers>
+                              <!-- 此transformer指定启动类-->
+                              <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                  <mainClass>com.summer.App</mainClass>
+                              </transformer>
+                              <!-- 此transformer会将依赖包的META-INF/services/目录下的SPI实现类文件合并 -->
+                              <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                          </transformers>
+                      </configuration>
+                  </execution>
+              </executions>
+          </plugin>
+      </plugins>
+  </build>
+  ```
+
+需要注意到是，以上SPI示例并没有打破双亲委派机制，因为服务接口定义方、服务实现提供方、服务使用方都位于classpath中，都由AppClassLoader加载。
+
+:::
+
+[+farjar]: 将项目自身代码和所有依赖的第三方库一起打包到一个单独的 JAR 文件中，这就被称为 "Fat JAR"（胖 JAR 包）或者 "Uber JAR"。
+
+:::details JDBC 示例
+
+JDBC 的实现方式与上方的简单示例类似：
+
+- spi 服务接口定义方：JDK 自带的`java.sql.Driver`
+
+- spi 服务实现提供方：各大数据库厂商，如 `mysql-connector-j-9.4.0.jar`
+
+- 服务使用方：JDK 自带的 `DriverManager`
+
+  - 正是因为 **spi 服务接口定义方** 与 **服务使用方** 是 JDK 自带的，因此仅需引入第三方数据库驱动 jar 包即可获取对应的Driver执行数据库操作；
+  - 但同时也因为 **spi 服务接口定义方** 与 **服务使用方** 是 JDK 自带的，而其位置在 rt.jar (JDK8)中，根据双亲委派机制 `DriverManager`由启动类加载器加载，而启动类加载器无法加载 classpath 下的第三方 jar 包的 Driver 实现，因此只能委派线程上下文类加载器去加载，因此被认为打破了双亲委派机制。
+  - 因此仅需引入第三方driver jar包，在编写以下几行代码即可轻松实现：
+
+  ```java
+  	public static void main(String[] args) throws SQLException {
+          String url = "jdbc:mysql://localhost:3306/esign-low-code-framework?useSSL=false&serverTimezone=UTC";
+          try(
+              //1. 获取连接
+              Connection connection = DriverManager.getConnection(url, "root", "123456");
+              //2. 获取Statement
+              Statement statement = connection.createStatement();
+              //3. 执行查询
+              ResultSet resultSet = statement.executeQuery("SELECT * from sys_user limit 10");
+          ) {
+              //4. 结果处理
+              while (resultSet.next()) {
+                  System.out.printf("name: %s, account: %s\n",
+                          resultSet.getString("name"),resultSet.getString("account")
+                  );
+              }
+          }
+      }
+  ```
+
+  
+
+:::
+
+(3) **OSGI框架**
+
+用的不多，暂不介绍。
