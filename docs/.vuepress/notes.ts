@@ -11,11 +11,17 @@ const tools = defineNoteConfig({
   sidebar: ["", "git", "npm"],
 });
 
-const java = defineNoteConfig({
-  dir: "java",
-  link: "/java",
-  sidebar: ["", "juc/", "jvm/"],
+// const java = defineNoteConfig({
+//   dir: "java",
+//   link: "/java",
+//   sidebar: ["", "juc/", "jvm/"],
+// });
+const jvm = defineNoteConfig({
+  dir: "java/jvm",
+  link: "/java/jvm",
+  sidebar: ["","introduce/", "ClassTech/", "ClassLoader/", "MemoryStruc/", "GC/"],
 });
+
 
 const front = defineNoteConfig({
   dir: "front",
@@ -26,5 +32,5 @@ const front = defineNoteConfig({
 export const notes = defineNotesConfig({
   dir: "notes",
   link: "/",
-  notes: [demoNote, tools, java, front],
+  notes: [demoNote, tools, jvm, front],
 });
