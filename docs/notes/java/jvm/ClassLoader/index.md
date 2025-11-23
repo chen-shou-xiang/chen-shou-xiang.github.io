@@ -8,7 +8,7 @@ outline: "deep"
 ### 1. 类的生命周期
 
 类的生命周期描述了一个类加载、使用、卸载的整个过程：
-<!-- ![alt text](classLifeCycle.png) -->
+![alt text](classLifeCycle.png)
 
 #### (1) 加载
 
